@@ -40,20 +40,27 @@ class AircraftNearMe:
                 response = requests.get(url = f"{ROUTE}{iata_callsign}")
             else:
                 response = requests.get(url = f"{ROUTE}{flight}")
-            origin = response.json()
+            route_info = response.json()
             if response.status_code == 200:
-                item['airline'] = origin['response']['flightroute']['airline']['name']
-                item['from_country'] = origin['response']['flightroute']['origin']['country_name']
-                item['from_airport'] = origin['response']['flightroute']['origin']['name']
-                item['to_country'] = origin['response']['flightroute']['destination']['country_name']
-                item['to_airport'] = origin['response']['flightroute']['destination']['name']
+                item['airline'] = route_info['response']['flightroute']['airline']['name']
+                item['origin'] = {
+                    "country" : route_info['response']['flightroute']['origin']['country_name'],
+                    "airport" : route_info['response']['flightroute']['origin']['name'],
+                    "lat"     : route_info['response']['flightroute']['origin']['latitude'],
+                    "long"    : route_info['response']['flightroute']['origin']['longitude'],
+                    }
+                item['destination'] = {
+                    "country" : route_info['response']['flightroute']['destination']['country_name'],
+                    "airport" : route_info['response']['flightroute']['destination']['name'],
+                    "lat"     : route_info['response']['flightroute']['destination']['latitude'],
+                    "long"    : route_info['response']['flightroute']['destination']['longitude'],
+                    }
+
                 logging.info(f'caught info, flight number {flight}')
             else:
-                item['airline']      = "unknown"
-                item['from_country'] = "unknown"
-                item['from_airport'] = "unknown"
-                item['to_country']   = "unknown"
-                item['to_airport']   = "unknown"
+                item['airline']     = None
+                item['destination'] = None
+                item['origin']      = None
             result.append(item)
         return result 
             
